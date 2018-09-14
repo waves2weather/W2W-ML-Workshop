@@ -2,6 +2,8 @@
 import xarray as xr
 import numpy as np
 
+DATA_DIR = '/local/S.Rasp/ML-Workshop-Data/dataset2/'
+
 def fill_forecasts(ds, field, dtidx, fc_begin_h=0, fc_end_h=48, fc_resolution_h=3):
     """Return an array containing one forecast per timestamp provided. fc_resolution is given in hours
     and is a property of the model, i.e. should actually be avalable from the .nc file."""
@@ -57,12 +59,12 @@ input_patterns = []
 
 # append all models
 for model, fields in models_used.items():
-    xdat = xr.open_dataset('./nwp_%s.nc' % model)
+    xdat = xr.open_dataset(f'{DATA_DIR}/nwp_%s.nc' % model)
     for field in fields:
         input_patterns.append(fill_forecasts(xdat, field, epo_idx, fc_begin_h=fc_begin_h, fc_end_h=fc_end_h))
 
 # append obs data
-xdat = xr.open_dataset('./metobs.nc')
+xdat = xr.open_dataset(f'{DATA_DIR}/metobs.nc')
 # FIXME: Need to make the time index regular at this point!
 #        Missing data need to be interpolated (if not more than a few values are missing) or set to NaN.
 
@@ -74,7 +76,7 @@ input_patterns = np.hstack(input_patterns)
 print(input_patterns.shape)
 
 # construct corresponding targets
-xdat = xr.open_dataset('./windpark.nc')
+xdat = xr.open_dataset(f'{DATA_DIR}windpark.nc')
 # FIXME: Need to make the time index regular at this point!
 #        Missing data need to be set to NaN. Resolution could be reduced to hourly averages.
 target_patterns = get_obs_array(xdat, target, epo_idx, rel_begin_m=targ_begin_m, rel_end_m=targ_end_m, obs_resolution_m=10)
